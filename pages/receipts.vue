@@ -23,25 +23,22 @@
 
         <!-- Receipts Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-          <div v-for="receipt in filteredReceipts" :key="receipt.id"
+          <div v-for="receipt in receipts" :key="receipt.id"
             class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
             <div class="flex items-start space-x-4">
               <!-- Receipt Icon -->
               <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                <svg class="w-6 h-6 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14,2 14,8 20,8"></polyline>
-                  <line x1="16" y1="13" x2="8" y2="13"></line>
-                  <line x1="16" y1="17" x2="8" y2="17"></line>
-                </svg>
+                <img @click="viewImage(receipt.imageUrl)" :src="receipt.imageUrl" class="block w-10 h-10 rounded-md" />
+
               </div>
 
               <!-- Receipt Details -->
               <div class="flex-1 min-w-0">
-                <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ receipt.vendor }}</h3>
-                <p class="text-sm text-gray-500 mb-2">{{ receipt.date }}</p>
-                <p class="text-xl font-bold text-blue-600">${{ receipt.amount }}</p>
+                <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ receipt.vendor && receipt.vendor.length > 2 ?
+                  receipt.vendor : 'No Vendor'}}</h3>
+                <p class="text-sm text-gray-500 mb-2">{{ receipt.date && receipt.date.length > 2 ? receipt.date : 'No Date' }}</p>
+                <p class="text-xl font-bold text-blue-600">{{ receipt.amount && receipt.amount.length > 2 ?
+                  receipt.amount : 'No Amount' }}</p>
               </div>
             </div>
           </div>
@@ -79,8 +76,10 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
+import type { aResponse } from '~/interfaces/aResponse'
+import type { PaginatedResult, Receipt } from '~/interfaces/receipt'
 definePageMeta({
   name: 'All Receipts',
   middleware: 'dashboard'
@@ -89,44 +88,15 @@ definePageMeta({
 const sidebarOpen = ref(false)
 const searchQuery = ref('')
 const currentPage = ref(1)
-const itemsPerPage = 4
+const itemsPerPage = ref(4);
+const totalPages = ref(0);
 
-// Sample receipt data
-const receipts = ref([
-  { id: 1, vendor: 'Starbucks', date: '2024-06-10', amount: '12.60' },
-  { id: 2, vendor: 'Amazon', date: '2024-06-09', amount: '29.99' },
-  { id: 3, vendor: 'Walmart', date: '2024-06-06', amount: '56.12' },
-  { id: 4, vendor: 'CVS Pharmacy', date: '2024-06-02', amount: '18.75' },
-  { id: 5, vendor: 'Target', date: '2024-06-01', amount: '45.30' },
-  { id: 6, vendor: 'McDonald\'s', date: '2024-05-30', amount: '8.99' },
-  { id: 7, vendor: 'Home Depot', date: '2024-05-28', amount: '127.45' },
-  { id: 8, vendor: 'Costco', date: '2024-05-25', amount: '89.67' }
-])
 
-// Computed properties
-const filteredReceipts = computed(() => {
-  let filtered = receipts.value
 
-  if (searchQuery.value) {
-    filtered = filtered.filter(receipt =>
-      receipt.vendor.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
-  }
+const viewImage = (route: string) => {
+  window.open(route, '_blank');
+}
 
-  const start = (currentPage.value - 1) * itemsPerPage
-  const end = start + itemsPerPage
-  return filtered.slice(start, end)
-})
-
-const totalPages = computed(() => {
-  const filtered = searchQuery.value
-    ? receipts.value.filter(receipt =>
-      receipt.vendor.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
-    : receipts.value
-
-  return Math.ceil(filtered.length / itemsPerPage)
-})
 
 // Methods
 const previousPage = () => {
@@ -145,10 +115,46 @@ const nextPage = () => {
 const resetPage = () => {
   currentPage.value = 1
 }
+const { getToken } = useAuth();
+const { createReceipt, getReceipts } = useReceipt();
+const toast = useToast();
+const { start, finish } = useLoadingIndicator();
 
-// Watch for search changes
-import { watch } from 'vue'
-watch(searchQuery, resetPage)
+const receipts = ref<Receipt[]>([]);
+async function fetchReceipts() {
+  start();
+  try {
+    const tokenResponse = await getToken();
+
+    if (!tokenResponse.data) {
+      throw new Error("Session exprired");
+    }
+    const response = await getReceipts(tokenResponse.data, currentPage.value, itemsPerPage.value, searchQuery.value);
+    if (response.status === 401) {
+      throw new Error("Session expired");
+
+    }
+    const res: aResponse<PaginatedResult<Receipt>> = await response.json();
+    console.log(res)
+    if (res.data && res.data.data) {
+      receipts.value = res.data.data;
+      totalPages.value = res.data.totalPages
+    }
+    else {
+      receipts.value = [];
+    }
+  } catch (error: any) {
+    console.error(error);
+    toast.add({ title: 'Error', description: error.message, color: 'error' });
+
+  } finally {
+    finish();
+  }
+}
+onMounted(() => {
+  fetchReceipts()
+})
+
 </script>
 
 <style scoped>
