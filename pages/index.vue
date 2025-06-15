@@ -21,8 +21,8 @@
 
                     <!-- Auth Buttons -->
                     <div class="flex items-center space-x-4">
-                        <button class="text-gray-600 hover:text-gray-900 transition-colors">Sign In</button>
-                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <button @click="sendTo('/auth/login')" class="text-gray-600 hover:text-gray-900 transition-colors" >Sign In</button>
+                        <button @click="sendTo('/auth/signup')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                             Sign Up
                         </button>
                     </div>
@@ -76,7 +76,7 @@
 
                 <!-- CTA Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
-                    <button
+                    <button @click="sendTo('/auth/signup')"
                         class="bg-blue-600 cursor-pointer text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors shadow-lg">
                         Get Started Free
                     </button>
@@ -103,11 +103,15 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 definePageMeta({
     layout: 'empty'
-})
-// Component logic can be added here if needed
+});
+
+
+const sendTo = (route: string) => {
+    navigateTo(route)
+}
 </script>
 
 <style scoped>

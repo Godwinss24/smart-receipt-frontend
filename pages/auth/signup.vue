@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="min-h-screen bg-gray-50 flex flex-col justify-center px-6 py-12 sm:px-6 lg:px-8">
       <!-- Header with Logo -->
       <div class="sm:mx-auto sm:w-full sm:max-w-md">
         <div class="flex justify-center">
@@ -146,7 +146,7 @@
   const passwordMismatch = computed(() => {
     return form.password && form.confirmPassword && form.password !== form.confirmPassword
   })
-  
+  const toast = useToast();
   const handleSignUp = async () => {
     if (passwordMismatch.value) return
     
@@ -155,7 +155,10 @@
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000))
-      
+
+      toast.add({
+        title: 'Good',color: 'success'
+      })
       // Handle successful sign up
       console.log('Sign up successful:', form)
       
