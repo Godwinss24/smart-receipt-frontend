@@ -1,6 +1,5 @@
 <template>
   <div class="">
-    <!-- Mobile Overlay -->
 
     <!-- Main Content -->
     <div class="">
@@ -83,7 +82,8 @@
 <script setup>
 import { ref, computed } from 'vue'
 definePageMeta({
-  name: 'All Receipts'
+  name: 'All Receipts',
+  middleware: 'dashboard'
 })
 
 const sidebarOpen = ref(false)
