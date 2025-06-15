@@ -67,7 +67,7 @@
                 </svg>
               </div>
               <div>
-                <p class="text-2xl font-bold text-gray-900">42</p>
+                <p class="text-2xl font-bold text-gray-900">{{ totalReceipts }}</p>
                 <p class="text-sm text-gray-500">Total Receipts</p>
               </div>
             </div>
@@ -133,21 +133,18 @@
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                <tr>
+                <tr v-for="item in receipts" :key="item.id">
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
-                      <svg class="w-5 h-5 text-blue-600 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14,2 14,8 20,8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                      </svg>
+                      <img @click="viewImage(item.imageUrl)" :src="item.imageUrl" class="block w-10 h-10 rounded-md" />
                     </div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Starbucks</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-06-10</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$12.60</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.vendor &&
+                    item.vendor.length > 1 ? item.vendor : 'No name' }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.date && item.date.length > 0 ?
+                    item.date : 'No date' }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.amount &&
+                    item.amount.length > 0 ? item.amount : 'No amount' }}</td>
                 </tr>
               </tbody>
             </table>
@@ -160,6 +157,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import type { aResponse } from '~/interfaces/aResponse';
+import type { PaginatedResult, Receipt } from '~/interfaces/receipt';
 
 definePageMeta({
   name: 'Dashboard',
@@ -188,10 +187,18 @@ function handleFileChange(event: Event): void {
   }
 }
 
+const viewImage = (route: string) => {
+  window.open(route, '_blank');
+}
+
 const { getToken } = useAuth();
-const { createReceipt } = useReceipt();
+const { createReceipt, getReceipts } = useReceipt();
 const toast = useToast();
 const { start, finish } = useLoadingIndicator();
+const page = ref(1);
+const limit = ref(10);
+const search = ref();
+const totalReceipts = ref(0);
 
 async function sendReceipt() {
   start();
@@ -230,8 +237,40 @@ async function sendReceipt() {
     isLoading.value = false;
   }
 }
+const receipts = ref<Receipt[]>([]);
+async function fetchReceipts() {
+  start();
+  try {
+    const tokenResponse = await getToken();
 
+    if (!tokenResponse.data) {
+      throw new Error("Session exprired");
+    }
+    const response = await getReceipts(tokenResponse.data, page.value, limit.value, search.value);
+    if (response.status === 401) {
+      throw new Error("Session expired");
 
+    }
+    const res: aResponse<PaginatedResult<Receipt>> = await response.json();
+    console.log(res)
+    if (res.data && res.data.data) {
+      receipts.value = res.data.data;
+      totalReceipts.value = res.data.total
+    }
+    else {
+      receipts.value = [];
+    }
+  } catch (error: any) {
+    console.error(error);
+    toast.add({ title: 'Error', description: error.message, color: 'error' });
+
+  } finally {
+    finish();
+  }
+}
+onMounted(() => {
+  fetchReceipts()
+})
 </script>
 
 <style scoped>

@@ -10,7 +10,7 @@ export const useReceipt = () => {
         const formdata = new FormData();
         formdata.append("file", file);
 
-        const requestOptions:RequestInit = {
+        const requestOptions: RequestInit = {
             method: "POST",
             headers: myHeaders,
             body: formdata,
@@ -21,7 +21,22 @@ export const useReceipt = () => {
         return response;
     }
 
+    const getReceipts = async (token: string, page: number, limit: number, search?: string) => {
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", `Bearer ${token}`);
+
+
+        const requestOptions: RequestInit = {
+            method: "GET",
+            headers: myHeaders,
+            redirect: "follow"
+        };
+
+        const response = await fetch(`${baseURL}/receipt/all?page=${page}&limit=${limit}${search ? `&search=${search}`: ''}`, requestOptions);
+        return response;
+    }
+
     return {
-        createReceipt
+        createReceipt, getReceipts
     }
 }
