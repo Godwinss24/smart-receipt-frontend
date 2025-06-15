@@ -6,7 +6,7 @@
                 <div class="flex justify-between items-center h-16">
                     <!-- Logo -->
                     <div class="flex items-center space-x-2">
-                        <div class="w-8 h-8 bg-gray-900 rounded-md flex items-center justify-center">
+                        <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
                             <span class="text-white font-bold text-sm">R</span>
                         </div>
                         <span class="text-xl font-semibold text-gray-900">ReceiptTracker</span>
