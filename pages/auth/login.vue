@@ -93,7 +93,7 @@ definePageMeta({
 })
 
 const emit = defineEmits(['switch-to-signup'])
-const {start, finish} = useLoadingIndicator();
+const { start, finish } = useLoadingIndicator();
 const isLoading = ref(false)
 
 const form = reactive({
@@ -116,17 +116,16 @@ const handleSignIn = async () => {
   try {
 
     const response = await login(form.email, form.password);
-    
+
     const res = await response.json();
 
     if (res.successful === false) {
       throw new Error(res.message ? res.message : 'Something went wrong');
     }
-    
-    if(res.data === null || res.data === undefined){
+
+    if (res.data === null || res.data === undefined) {
       throw new Error("Missing access token");
     }
-
     await saveToken(res.data);
 
     toast.add({ title: 'Success', description: res.message, color: 'info' });

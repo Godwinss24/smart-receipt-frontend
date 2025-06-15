@@ -99,15 +99,17 @@ const viewImage = (route: string) => {
 
 
 // Methods
-const previousPage = () => {
+const previousPage = async () => {
   if (currentPage.value > 1) {
     currentPage.value--
+    await fetchReceipts();
   }
 }
 
-const nextPage = () => {
+const nextPage = async () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++
+    await fetchReceipts();
   }
 }
 
