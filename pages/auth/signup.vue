@@ -146,7 +146,7 @@
   const passwordMismatch = computed(() => {
     return form.password && form.confirmPassword && form.password !== form.confirmPassword
   })
-  
+  const toast = useToast();
   const handleSignUp = async () => {
     if (passwordMismatch.value) return
     
@@ -155,7 +155,10 @@
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000))
-      
+
+      toast.add({
+        title: 'Good',color: 'success'
+      })
       // Handle successful sign up
       console.log('Sign up successful:', form)
       
