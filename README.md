@@ -1,75 +1,35 @@
-# Nuxt Minimal Starter
+# 🧾 Receipt Tracker
+[🌐 View Live Project](https://smart-receipt-store.netlify.app)
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Receipt Tracker is a Nuxt.js application that allows users to upload receipts, which are then scanned by an AI-powered backend. The relevant details—such as store name, date, total amount, and items—are extracted and securely stored for future reference and analytics.
 
-## Setup
+## 🚀 Features
 
-Make sure to install dependencies:
+- 📤 Upload receipt images (JPG, PNG, PDF)
+- 🧠 AI-powered OCR and data extraction
+- 📦 Store and organize receipts by date, vendor, or category
+- 🔍 Search and filter receipts
+- 🔐 Secure storage of user data
+- 📊 Future plans: Spending insights, category breakdowns, export to CSV/PDF
+
+## 🛠 Tech Stack
+
+- **Frontend**: Nuxt.js (Vue 3, Composition API, Tailwind CSS)
+- **Backend**: (Nest js) AI receipt scanning service (e.g., custom Python service or third-party like AWS Textract / Google Vision API)
+- **Storage**: Cloudinary 
+- **Database**: Supabase 
+
+## 📦 Project Setup
 
 ```bash
-# npm
+# Install dependencies
 npm install
 
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
+# Run in development mode
 npm run dev
 
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
+# Build for production
 npm run build
 
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
+# Preview the production build
 npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
